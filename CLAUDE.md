@@ -16,7 +16,7 @@
 
 **팀 구성:**
 - 분석/생성 파이프라인: `analyzer` → `writer` → (`pattern-extractor`) → `validator` → `qa`
-- 작업용 에이전트: `impact-analyzer`, `change-safety`, `migration-planner`, `test-generator`, `sql-reviewer`, `legacy-decoder`, `doc-syncer`
+- 작업용 에이전트: `impact-analyzer`, `change-safety`, `migration-planner`, `test-generator`, `sql-reviewer`, `legacy-decoder`, `doc-syncer`, `logic-tracer`, `feature-finder`
 
 ## 파일 구조
 
@@ -32,6 +32,8 @@
 | `skills/scaffold-feature/SKILL.md` | 컨벤션 기반 신규 기능 스캐폴딩 |
 | `skills/plan-migration/SKILL.md` | 마이그레이션 계획 워크플로우 |
 | `skills/review-sql/SKILL.md` | SQL 종합 리뷰 워크플로우 |
+| `skills/trace-logic/SKILL.md` | 기능·API·화면 처리 흐름 추적 워크플로우 |
+| `skills/find-feature/SKILL.md` | 기능명·키워드로 관련 코드 위치 탐색 워크플로우 |
 | `agents/analyzer.md` | Phase 2-1: 심층 분석 (스택 + 의존성 그래프 + 데이터 흐름 + 트랜잭션 + 외부 통신 + 인덱스 생성) |
 | `agents/writer.md` | Phase 2-2: 하네스 파일 + 워크플로우 스킬 생성 |
 | `agents/pattern-extractor.md` | Phase 2-2.5: 컨벤션 추출 (writer 직후) |
@@ -44,6 +46,8 @@
 | `agents/sql-reviewer.md` | SQL 다각도 리뷰 |
 | `agents/legacy-decoder.md` | 레거시 코드 역공학 |
 | `agents/doc-syncer.md` | 코드 ↔ 문서 동기화 점검 |
+| `agents/logic-tracer.md` | 기능·API·화면 처리 흐름을 진입점 → Controller → Service → DB까지 추적 |
+| `agents/feature-finder.md` | 기능명·키워드로 관련 파일·클래스·메서드·SQL 위치 탐색 |
 
 > 본 저장소 내의 `agents/`·`skills/` 경로는 *플러그인 소스*이며, 설치된 대상 프로젝트에서 출력되는 결과물은 여전히 대상 프로젝트의 `.claude/skills/...`·`.claude/agents/...`에 기록된다. 에이전트/스킬 본문 내부의 `.claude/...` 경로는 *대상 프로젝트* 경로를 의미한다.
 
@@ -59,6 +63,8 @@
 | SQL 리뷰 | `review-sql` |
 | 레거시 코드 해석 | `legacy-decoder` 직접 호출 |
 | 문서 동기화 | `doc-syncer` 직접 호출 |
+| 기능·API 처리 흐름 추적 | `trace-logic` |
+| 기능·키워드로 코드 위치 탐색 | `find-feature` |
 
 ## 에이전트 수정
 
@@ -81,3 +87,4 @@
 | 2026-06-02 | harness-new 기반 확장 — P0(impact-analyzer, change-safety) + P1(pattern-extractor, migration-planner) + P2(test-generator, sql-reviewer, legacy-decoder, doc-syncer) + 워크플로우 스킬 5종(analyze-impact, safe-modify, scaffold-feature, plan-migration, review-sql) + analyzer 심층 분석(의존성 그래프, 데이터 흐름, 트랜잭션, 외부 통신, 환경 분기, 데드 코드) + 인덱스 레이어(_workspace/index/*.json) | 전체 | ITO/SI 조직의 수정/개발/마이그레이션 작업까지 끊김 없이 지원하기 위함 |
 | 2026-06-02 | Claude Code 플러그인 표준 레이아웃으로 재구성 — `.claude/agents/`·`.claude/skills/` 중복본 제거, 루트 `agents/`·`skills/<name>/SKILL.md` 단일 source-of-truth로 정리, `.claude-plugin/marketplace.json`·`plugin.json` 추가 | 저장소 구조 | `/plugin marketplace add Malburi/harness-ito`로 설치 가능하도록 |
 | 2026-06-02 | Vue.js 스택 지원 추가 — Vue 2/3, Nuxt 2/3, Pinia/Vuex, Vue Router, Vite, Vue CLI 탐지 + QA Boundary + 마이그레이션 매핑 (Vue 2→3, Vuex→Pinia, Nuxt 2→3, Vue CLI→Vite) | analyzer / qa / docs/stack-matrix / README | 프런트엔드 스택 커버리지 확장 |
+| 2026-06-03 | 로직 탐색 에이전트 2종 추가 — `logic-tracer`(진입점→DB 처리 흐름 추적) + `feature-finder`(기능명·키워드 코드 위치 탐색) + 트리거 스킬 2종(`trace-logic`, `find-feature`) | agents / skills / CLAUDE.md | 특정 로직·기능 위치 탐색 요구 대응 |

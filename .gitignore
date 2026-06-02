@@ -1,20 +1,5 @@
-node_modules/
-.vscode/
+﻿*.stackdump
+_workspace/
 *.log
-*.tmp
 .DS_Store
 Thumbs.db
-
-# harness runtime artifacts
-.claude/backup/
-.claude/settings.local.json
-_workspace/
-_workspace_prev/
-
-# index outputs (regeneratable, do not commit)
-_workspace/index/
-
-# editor
-.idea/
-*.swp
-*.swo
