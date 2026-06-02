@@ -1,7 +1,7 @@
 ---
 name: test-generator
 description: 변경된 코드 또는 영향받는 코드에 대해 회귀 테스트 골격을 자동 생성한다. 기존 테스트 컨벤션(pattern-extractor의 test_pattern.md)을 따르고, impact-analyzer의 영향 목록을 입력으로 받아 누락된 케이스를 식별. safe-modify·scaffold-feature·plan-migration에서 호출.
-model: opus
+model: sonnet
 ---
 
 # Test Generator

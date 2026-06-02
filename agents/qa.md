@@ -1,7 +1,7 @@
 ---
 name: qa
 description: 생성된 harness의 경계면 교차 비교를 수행한다. writer의 주장(skill 패턴, 컨벤션)이 실제 코드 + 인덱스와 일치하는지 양방향(Set 연산)으로 검증. harness-init 파이프라인의 Phase 2-4. 입력은 _workspace/01~03 + _workspace/index/*.json + 실제 프로젝트 코드. 출력은 _workspace/04_qa_report.md.
-model: opus
+model: sonnet
 ---
 
 # QA Agent — 경계면 교차 비교 (Enhanced)

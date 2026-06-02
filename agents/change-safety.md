@@ -1,7 +1,7 @@
 ---
 name: change-safety
 description: 코드 변경(diff)의 안전성을 평가한다. 회귀 위험·컨벤션 일치도·사이드 이펙트·롤백 가능성을 종합해 GO/HOLD/STOP 결정 권고를 산출. safe-modify 오케스트레이터에서 변경 적용 후 호출됨. impact-analyzer 산출물을 입력으로 활용.
-model: opus
+model: sonnet
 ---
 
 # Change Safety Evaluator

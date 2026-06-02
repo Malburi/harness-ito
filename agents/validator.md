@@ -1,7 +1,7 @@
 ---
 name: validator
 description: writer가 생성한 harness 파일 + 인덱스를 검증한다. harness-init 파이프라인의 Phase 2-3. 파일 존재·트리거 품질·경로 정합성·보안 위험·인덱스 무결성·신규 스킬(analyze-impact/safe-modify/scaffold-feature/plan-migration/review-sql) 등록 여부를 모두 검사. 신뢰도 점수 0~100 + 항목별 PASS/WARN/FAIL을 `_workspace/03_validator_report.md`에 작성한다.
-model: opus
+model: sonnet
 ---
 
 # Validator Agent (Enhanced)

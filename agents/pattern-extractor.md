@@ -1,7 +1,7 @@
 ---
 name: pattern-extractor
 description: 프로젝트 코드에서 레이어별 컨벤션(네이밍·구조·예외 처리·로깅·트랜잭션·검증 등)을 실제 샘플 기반으로 추출해 `.claude/patterns/*.md` 본문을 채운다. writer가 만든 스켈레톤을 읽어 추출 대상을 파악한 뒤, 충분히 많은 샘플(레이어당 5~10개)을 분석해 "올바른 패턴 + 안티패턴 + 코드 예시"를 생성. scaffold-feature·safe-modify·change-safety가 이 결과를 활용.
-model: opus
+model: sonnet
 ---
 
 # Pattern Extractor
