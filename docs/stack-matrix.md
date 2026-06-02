@@ -1,0 +1,159 @@
+# Stack Matrix — 지원 스택 매트릭스
+
+harness-fin이 자동 탐지/지원하는 스택 목록과 각 스택에서의 분석/QA 깊이.
+
+---
+
+## 탐지 시그니처
+
+analyzer Step 1~2 에서 다음 파일/문자열로 자동 탐지:
+
+### Java 계열
+
+| 스택 | 탐지 시그니처 | 분석 깊이 |
+|------|------------|---------|
+| Maven Java | `pom.xml` | HIGH |
+| Gradle Java | `build.gradle`, `build.gradle.kts` | HIGH |
+| Spring Boot 2/3 | `pom.xml` + `spring-boot-starter-*` | HIGH |
+| Spring Framework 3~4 | `pom.xml` + `spring-*` (no boot) | MEDIUM (레거시 패턴 다수) |
+| Struts 1.x | `pom.xml` + `org.apache.struts:struts-core` 또는 `WEB-INF/struts-config.xml` | HIGH (마이그레이션 대상) |
+| Struts 2.x | `pom.xml` + `org.apache.struts:struts2-core` | HIGH |
+| Java EE Web | `WEB-INF/web.xml` | MEDIUM |
+| EJB 2.x | `WEB-INF/web.xml` + `ejb-jar.xml` | LOW (레거시, 마이그레이션 대상) |
+| MyBatis | `mybatis-spring`, `mybatis-config.xml`, `*Mapper.xml` | HIGH |
+| iBatis (레거시) | `ibatis-sqlmap`, `sqlmap-config.xml` | MEDIUM (마이그레이션 대상) |
+| JPA / Hibernate | `spring-data-jpa`, `hibernate-*`, `persistence.xml` | HIGH |
+| 전자정부 표준프레임워크 | `org.egovframe` 또는 `egovframework.*` | MEDIUM |
+| JSP/JSTL | `*.jsp`, `WEB-INF/jsp/*` | MEDIUM |
+
+### Node.js 계열
+
+| 스택 | 탐지 | 깊이 |
+|------|------|------|
+| Express | `package.json` + `express` | HIGH |
+| NestJS | `@nestjs/core` | HIGH |
+| Next.js | `next` + `next.config.*` | HIGH |
+| Fastify | `fastify` | MEDIUM |
+| Koa | `koa` | MEDIUM |
+| TypeORM | `typeorm` | HIGH |
+| Prisma | `prisma` + `schema.prisma` | HIGH |
+| Sequelize | `sequelize` | MEDIUM |
+| Mongoose | `mongoose` | MEDIUM |
+
+### Python 계열
+
+| 스택 | 탐지 | 깊이 |
+|------|------|------|
+| FastAPI | `fastapi` in requirements/pyproject | HIGH |
+| Django | `django` | HIGH |
+| Flask | `flask` | MEDIUM |
+| SQLAlchemy | `sqlalchemy` | HIGH |
+| psycopg | `psycopg` 또는 `psycopg2` | MEDIUM |
+| Pydantic | `pydantic` | HIGH |
+
+### .NET 계열
+
+| 스택 | 탐지 | 깊이 |
+|------|------|------|
+| .NET Framework 2~4 | `*.csproj` + `<TargetFramework>net4*` or `v4.*` | MEDIUM (마이그레이션 대상) |
+| .NET Core / 5~8 | `*.csproj` + `<TargetFramework>net[5-8].*` or `netcoreapp*` | HIGH |
+| ASP.NET Core | `Microsoft.AspNetCore.*` | HIGH |
+| Entity Framework | `EntityFramework`, `Microsoft.EntityFrameworkCore` | HIGH |
+| Classic ASP.NET MVC | `System.Web.Mvc` | MEDIUM (마이그레이션 대상) |
+
+### 데이터베이스
+
+| DB | 탐지 | 깊이 |
+|----|------|------|
+| Oracle | `ojdbc*`, `oracle.jdbc.*`, `*.pkb`/`*.pks` (PL/SQL) | HIGH |
+| PostgreSQL | `postgresql-*`, `pg`, `psycopg` | HIGH |
+| MySQL / MariaDB | `mysql-connector-*`, `mariadb-java-client`, `mysql2` | HIGH |
+| SQL Server | `mssql-jdbc`, `System.Data.SqlClient`, `tedious` | MEDIUM |
+| Tibero (한국) | `tibero-jdbc`, `com.tmax.tibero.jdbc` | MEDIUM |
+| Altibase (한국) | `altibase-jdbc` | LOW |
+| MongoDB | `mongo-java-driver`, `mongoose`, `motor` | MEDIUM |
+| Redis | `jedis`, `redisson`, `redis-py`, `ioredis` | MEDIUM |
+
+### 기타/레거시
+
+| 스택 | 탐지 | 깊이 |
+|------|------|------|
+| Go | `go.mod` | MEDIUM |
+| Rust | `Cargo.toml` | MEDIUM |
+| PHP / Laravel | `composer.json`, `laravel/framework` | LOW |
+| Ruby on Rails | `Gemfile`, `rails` | LOW |
+| COBOL | `*.cbl`, `*.cob` | LOW (legacy-decoder 적용) |
+| ABAP (SAP) | `*.abap`, ABAP 패턴 | LOW (legacy-decoder 적용) |
+| Oracle Forms | `*.fmb`, `*.frm` | LOW |
+| Classic VB | `*.vbp`, `*.frm` (구) | LOW |
+
+---
+
+## 분석 깊이 의미
+
+| 깊이 | 의미 |
+|------|------|
+| HIGH | 7-step + Phase B 심층 분석 + Boundary 1~4 모두 활용 가능 |
+| MEDIUM | 7-step + Phase B 일부. Boundary 일부 적용. 컨벤션 추출 가능 |
+| LOW | 구조 파악 + 기본 컨벤션. 심층 분석 제한적. legacy-decoder 우선 권장 |
+
+---
+
+## QA Boundary 매트릭스
+
+스택별 적용되는 4-Boundary (Boundary 5, 6은 모든 스택 공통):
+
+| 스택 | Boundary 1 | Boundary 2 | Boundary 3 | Boundary 4 |
+|------|----------|----------|----------|----------|
+| Java EE / Struts | Struts XML ↔ Service ↔ Bean | Service ↔ Query XML 양방향 | 스킬 주장 ↔ 코드 | forward ↔ JSP |
+| Spring Boot | `@RequestMapping` ↔ 프론트 호출 | `@Entity` ↔ DTO shape | `@Repository` ↔ 호출 위치 | 트랜잭션 전파 ↔ Service 호출 그래프 |
+| Express/NestJS | route path ↔ 클라이언트 fetch | 응답 shape ↔ 프론트 타입 | middleware 체인 일관성 | DTO ↔ ORM 모델 |
+| FastAPI | `@router` path ↔ 클라이언트 호출 | Pydantic ↔ ORM 필드 | DI 그래프 | status code ↔ 응답 schema |
+| Next.js | `app/[route]` ↔ `href` | API 응답 shape ↔ `fetchJson<T>` | 서버 컴포넌트 fetch ↔ 클라이언트 hook | status 전이 |
+| .NET Core MVC | `[Route]` ↔ 호출 | EF Entity ↔ DTO | Repository ↔ 호출 위치 | DbContext ↔ Migration |
+
+새 스택 발견 시 qa.md의 "스택별 boundary 검증 변형" 섹션에 stub 추가.
+
+---
+
+## 마이그레이션 시나리오 매트릭스
+
+migration-planner가 사전 정의한 변환 시나리오:
+
+| 소스 | 타겟 | 매핑 테이블 템플릿 | 위험도 |
+|------|------|---------------|------|
+| Struts 1.x | Spring MVC / Spring Boot | Action→Controller, ActionForm→DTO, ActionForward→ViewName, struts-config.xml→`@RequestMapping` | HIGH |
+| Struts 2.x | Spring Boot | `@Action`→`@RequestMapping`, interceptor→filter/aspect | MEDIUM |
+| iBatis | MyBatis 3 | sqlmap → namespace, parameterClass → parameterType | MEDIUM |
+| iBatis / MyBatis | JPA | XML 쿼리 → JPQL/`@Query`/메서드명, ResultMap → Entity | HIGH |
+| EJB 2.x | Spring (또는 Spring Boot) | Session Bean → `@Service`, Entity Bean → JPA Entity, MDB → `@KafkaListener`/`@JmsListener` | EXTREME |
+| Spring 3~4 (XML) | Spring Boot 3 (어노테이션) | applicationContext.xml → `@Configuration` + `@Bean` | MEDIUM |
+| JSP scriptlet | Thymeleaf / React / Vue | `<%...%>` → template syntax, taglib → directive | HIGH |
+| .NET Framework | .NET Core / .NET 8 | `web.config` → `appsettings.json`, `System.Web` → `Microsoft.AspNetCore.*` | HIGH |
+| Oracle PL/SQL → Java/Service | DB 로직을 애플리케이션 코드로 | 절차형 → 객체형, 패키지 → 서비스 클래스 | EXTREME |
+| Oracle → PostgreSQL | DB 엔진 전환 | 함수/타입/문법 차이, 시퀀스, 힌트, 패키지 | HIGH |
+| MySQL → MariaDB | 같은 엔진 변종 | 거의 호환, 일부 함수 차이 | LOW |
+| jQuery → Vue/React | 클라이언트 프레임워크 | DOM 조작 → 컴포넌트, AJAX → fetch/axios | HIGH |
+| AngularJS (1.x) → Angular (15+) | 동일 이름 다른 프레임워크 | 사실상 전면 재작성 | EXTREME |
+| Java 8 → Java 17/21 | 언어 버전 업 | Records, Sealed, Pattern Matching 활용, deprecated 제거 | LOW~MEDIUM |
+| Python 2 → Python 3 | 언어 버전 업 | print, unicode, division, 모듈 변경 | MEDIUM |
+| Ant → Maven | 빌드 도구 | target → goal, custom task → plugin | MEDIUM |
+| Maven → Gradle | 빌드 도구 | pom.xml → build.gradle, plugin 매핑 | MEDIUM |
+
+위험도:
+- LOW: 1~2주 PoC, 자동 변환 도구 활용 가능
+- MEDIUM: 1~3개월, 모듈 단위 변환, 도구 + 수동
+- HIGH: 3~12개월, Phase 분리 + canary 필수
+- EXTREME: 6개월+, 사실상 재작성 수준, 비즈니스 동결 위험
+
+---
+
+## 신규 스택 추가 방법
+
+1. analyzer.md의 Step 1~2 탐지 시그니처 표에 추가
+2. 분석 깊이 결정 (HIGH/MEDIUM/LOW)
+3. qa.md의 boundary 4쌍 정의
+4. 필요 시 migration-planner의 매핑 테이블 템플릿 추가
+5. 이 문서 갱신
+
+특수 레거시 스택은 legacy-decoder를 우선 활용 (구조 분해 + 의도 추정).

@@ -1,0 +1,13 @@
+{
+  "name": "harness-ito",
+  "version": "0.1.0",
+  "description": "ITO/SI 조직을 위한 확장 메타 하네스 — 12 agents + 6 workflow skills",
+  "author": {
+    "name": "Malburi",
+    "url": "https://github.com/Malburi"
+  },
+  "homepage": "https://github.com/Malburi/harness-ito",
+  "repository": "https://github.com/Malburi/harness-ito",
+  "license": "MIT",
+  "keywords": ["harness", "agents", "skills", "ito", "si", "legacy", "migration", "code-analysis", "sql-review"]
+}
