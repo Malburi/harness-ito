@@ -92,10 +92,11 @@ ITO/SI 현장에서 흔히 만나는 레거시 포함:
 | Spring | Spring Boot 2/3, Spring MVC, Spring Data JPA, MyBatis, Spring Security |
 | 전자정부 표준프레임워크 | egovframework (한국 공공) |
 | Node.js | Express, NestJS, Next.js, Fastify, Koa |
+| 프런트엔드 | Vue 2/3, Nuxt 2/3, Pinia/Vuex, Vue Router, Vite, Vue CLI, React, Angular 15+, AngularJS 1.x, Svelte/SvelteKit |
 | Python | FastAPI, Django, Flask |
 | .NET | .NET Framework 2~4, .NET Core, .NET 5~8, ASP.NET Core |
 | DB | Oracle (PL/SQL), PostgreSQL, MySQL/MariaDB, Tibero, Altibase, SQL Server |
-| 마이그레이션 대상 (특별 처리) | Struts → Spring, iBatis → MyBatis/JPA, EJB → Spring, JSP → React/Vue, .NET FW → .NET Core, Oracle → PostgreSQL, AngularJS → Angular |
+| 마이그레이션 대상 (특별 처리) | Struts → Spring, iBatis → MyBatis/JPA, EJB → Spring, JSP → React/Vue, .NET FW → .NET Core, Oracle → PostgreSQL, AngularJS → Angular, **Vue 2 → Vue 3, Vuex → Pinia, Nuxt 2 → Nuxt 3, Vue CLI → Vite** |
 
 자세한 매트릭스: [`docs/stack-matrix.md`](docs/stack-matrix.md)
 

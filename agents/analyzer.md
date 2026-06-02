@@ -83,6 +83,22 @@ model: opus
 - `typeorm`/`prisma`/`sequelize`/`mongoose`/`mikro-orm` → ORM
 - `typescript`/`tsconfig.json` → TypeScript 여부
 
+#### 프런트엔드 (SPA/SSR)
+- `vue` 버전 → Vue 2 vs Vue 3 구분 (`^2.x` vs `^3.x`)
+  - `*.vue` SFC 파일 존재 확인
+  - `<script setup>` 블록 → Composition API (Vue 3 권장 스타일)
+  - `Vue.extend`/`data() { return {...} }` → Options API (Vue 2 흔적)
+- `nuxt` 버전 → Nuxt 2 (`nuxt.config.js`) vs Nuxt 3 (`nuxt.config.ts` + `app.vue` + `pages/`)
+- `pinia` → Pinia 스토어 (Vue 3 표준)
+- `vuex` → Vuex (Vue 2 표준, Pinia 마이그레이션 후보)
+- `vue-router` → 라우팅
+- `vite` + `vite.config.*` → 빌드 도구 (현대 Vue/Nuxt 3 표준)
+- `@vue/cli-service` + `vue.config.js` → Vue CLI/webpack (Vite 마이그레이션 후보)
+- `react`/`react-dom`/`next` → React
+- `@angular/core` + `angular.json` → Angular 15+
+- `angular@^1` 또는 `ng-app` 디렉티브 → AngularJS 1.x (레거시, 전면 재작성 후보)
+- `svelte`/`@sveltejs/kit` → Svelte / SvelteKit
+
 #### Python
 - `fastapi`/`django`/`flask`/`starlette` → 프레임워크
 - `sqlalchemy`/`tortoise-orm`/`psycopg`/`asyncpg` → DB 접근

@@ -40,6 +40,24 @@ analyzer Step 1~2 에서 다음 파일/문자열로 자동 탐지:
 | Sequelize | `sequelize` | MEDIUM |
 | Mongoose | `mongoose` | MEDIUM |
 
+### 프런트엔드 (SPA/SSR)
+
+| 스택 | 탐지 | 깊이 |
+|------|------|------|
+| Vue 3 | `package.json` + `vue@^3`, `*.vue` SFC, `<script setup>` | HIGH |
+| Vue 2 | `package.json` + `vue@^2`, Options API | MEDIUM (마이그레이션 대상) |
+| Nuxt 3 | `nuxt@^3` + `nuxt.config.ts`, `app.vue`, `pages/` | HIGH |
+| Nuxt 2 | `nuxt@^2` + `nuxt.config.js` | MEDIUM (마이그레이션 대상) |
+| Pinia | `pinia` | HIGH |
+| Vuex | `vuex` | MEDIUM (Pinia 마이그레이션 대상) |
+| Vue Router | `vue-router` | HIGH |
+| Vite | `vite.config.*` + `vite` | HIGH |
+| Vue CLI (webpack) | `vue.config.js` + `@vue/cli-service` | MEDIUM (Vite 마이그레이션 대상) |
+| React | `react`, `react-dom` | HIGH |
+| Angular (15+) | `@angular/core`, `angular.json` | HIGH |
+| AngularJS (1.x) | `angular@^1`, `ng-app` | LOW (마이그레이션 대상) |
+| Svelte / SvelteKit | `svelte`, `@sveltejs/kit` | MEDIUM |
+
 ### Python 계열
 
 | 스택 | 탐지 | 깊이 |
@@ -110,6 +128,8 @@ analyzer Step 1~2 에서 다음 파일/문자열로 자동 탐지:
 | Express/NestJS | route path ↔ 클라이언트 fetch | 응답 shape ↔ 프론트 타입 | middleware 체인 일관성 | DTO ↔ ORM 모델 |
 | FastAPI | `@router` path ↔ 클라이언트 호출 | Pydantic ↔ ORM 필드 | DI 그래프 | status code ↔ 응답 schema |
 | Next.js | `app/[route]` ↔ `href` | API 응답 shape ↔ `fetchJson<T>` | 서버 컴포넌트 fetch ↔ 클라이언트 hook | status 전이 |
+| Vue 3 / Nuxt 3 | `pages/` 또는 router 경로 ↔ `<NuxtLink>`/`router.push` | `defineProps`/`<script setup>` 타입 ↔ API 응답 shape | Pinia store action ↔ 컴포넌트 호출 | composable (`use*`) 의존 그래프 |
+| Vue 2 / Nuxt 2 | `routes.js` 경로 ↔ `<router-link>` | `props`/Options API 타입 ↔ API 응답 | Vuex action/mutation ↔ 컴포넌트 dispatch | mixin ↔ 사용 컴포넌트 |
 | .NET Core MVC | `[Route]` ↔ 호출 | EF Entity ↔ DTO | Repository ↔ 호출 위치 | DbContext ↔ Migration |
 
 새 스택 발견 시 qa.md의 "스택별 boundary 검증 변형" 섹션에 stub 추가.
@@ -129,6 +149,10 @@ migration-planner가 사전 정의한 변환 시나리오:
 | EJB 2.x | Spring (또는 Spring Boot) | Session Bean → `@Service`, Entity Bean → JPA Entity, MDB → `@KafkaListener`/`@JmsListener` | EXTREME |
 | Spring 3~4 (XML) | Spring Boot 3 (어노테이션) | applicationContext.xml → `@Configuration` + `@Bean` | MEDIUM |
 | JSP scriptlet | Thymeleaf / React / Vue | `<%...%>` → template syntax, taglib → directive | HIGH |
+| Vue 2 (Options API) | Vue 3 (Composition API) | `data/methods/computed` → `<script setup>` + `ref/reactive/computed`, `Vue.extend` → `defineComponent`, filter → method/computed | MEDIUM |
+| Vuex | Pinia | `state/mutations/actions` → `defineStore` + state/getters/actions, namespaced modules → 개별 store | MEDIUM |
+| Nuxt 2 | Nuxt 3 | `asyncData/fetch` → `useAsyncData/useFetch`, Vuex → Pinia, plugins API 변경, `@nuxtjs/composition-api` 제거 | HIGH |
+| Vue CLI (webpack) | Vite | `vue.config.js` → `vite.config.ts`, env 변수 `VUE_APP_*` → `VITE_*`, polyfill 재설정 | LOW~MEDIUM |
 | .NET Framework | .NET Core / .NET 8 | `web.config` → `appsettings.json`, `System.Web` → `Microsoft.AspNetCore.*` | HIGH |
 | Oracle PL/SQL → Java/Service | DB 로직을 애플리케이션 코드로 | 절차형 → 객체형, 패키지 → 서비스 클래스 | EXTREME |
 | Oracle → PostgreSQL | DB 엔진 전환 | 함수/타입/문법 차이, 시퀀스, 힌트, 패키지 | HIGH |

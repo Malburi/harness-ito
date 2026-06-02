@@ -20,26 +20,32 @@
 
 ## 파일 구조
 
+플러그인 표준 레이아웃 — `agents/`는 flat, `skills/`는 폴더/`SKILL.md`.
+
 | 경로 | 역할 |
 |------|------|
-| `.claude/skills/harness-init.md` | 메인 오케스트레이터 (분석 → 생성 → 검증 → QA → 패턴) |
-| `.claude/skills/analyze-impact.md` | 영향도 분석 워크플로우 |
-| `.claude/skills/safe-modify.md` | 안전 변경 워크플로우 (사전 영향 + 사후 안전성) |
-| `.claude/skills/scaffold-feature.md` | 컨벤션 기반 신규 기능 스캐폴딩 |
-| `.claude/skills/plan-migration.md` | 마이그레이션 계획 워크플로우 |
-| `.claude/skills/review-sql.md` | SQL 종합 리뷰 워크플로우 |
-| `.claude/agents/analyzer.md` | Phase 2-1: 심층 분석 (스택 + 의존성 그래프 + 데이터 흐름 + 트랜잭션 + 외부 통신 + 인덱스 생성) |
-| `.claude/agents/writer.md` | Phase 2-2: 하네스 파일 + 워크플로우 스킬 생성 |
-| `.claude/agents/pattern-extractor.md` | Phase 2-2.5: 컨벤션 추출 (writer 직후) |
-| `.claude/agents/validator.md` | Phase 2-3: 구조 검증 + 인덱스 무결성 |
-| `.claude/agents/qa.md` | Phase 2-4: 경계면 교차 비교 (Boundary 1~6) |
-| `.claude/agents/impact-analyzer.md` | 변경 영향도 분석 |
-| `.claude/agents/change-safety.md` | 변경 안전성 평가 (GO/HOLD/STOP) |
-| `.claude/agents/migration-planner.md` | 스택 마이그레이션 계획 |
-| `.claude/agents/test-generator.md` | 회귀 테스트 골격 생성 |
-| `.claude/agents/sql-reviewer.md` | SQL 다각도 리뷰 |
-| `.claude/agents/legacy-decoder.md` | 레거시 코드 역공학 |
-| `.claude/agents/doc-syncer.md` | 코드 ↔ 문서 동기화 점검 |
+| `.claude-plugin/marketplace.json` | 마켓플레이스 카탈로그 (단일 저장소 = 단일 플러그인) |
+| `.claude-plugin/plugin.json` | 플러그인 매니페스트 |
+| `skills/harness-init/SKILL.md` | 메인 오케스트레이터 (분석 → 생성 → 검증 → QA → 패턴) |
+| `skills/analyze-impact/SKILL.md` | 영향도 분석 워크플로우 |
+| `skills/safe-modify/SKILL.md` | 안전 변경 워크플로우 (사전 영향 + 사후 안전성) |
+| `skills/scaffold-feature/SKILL.md` | 컨벤션 기반 신규 기능 스캐폴딩 |
+| `skills/plan-migration/SKILL.md` | 마이그레이션 계획 워크플로우 |
+| `skills/review-sql/SKILL.md` | SQL 종합 리뷰 워크플로우 |
+| `agents/analyzer.md` | Phase 2-1: 심층 분석 (스택 + 의존성 그래프 + 데이터 흐름 + 트랜잭션 + 외부 통신 + 인덱스 생성) |
+| `agents/writer.md` | Phase 2-2: 하네스 파일 + 워크플로우 스킬 생성 |
+| `agents/pattern-extractor.md` | Phase 2-2.5: 컨벤션 추출 (writer 직후) |
+| `agents/validator.md` | Phase 2-3: 구조 검증 + 인덱스 무결성 |
+| `agents/qa.md` | Phase 2-4: 경계면 교차 비교 (Boundary 1~6) |
+| `agents/impact-analyzer.md` | 변경 영향도 분석 |
+| `agents/change-safety.md` | 변경 안전성 평가 (GO/HOLD/STOP) |
+| `agents/migration-planner.md` | 스택 마이그레이션 계획 |
+| `agents/test-generator.md` | 회귀 테스트 골격 생성 |
+| `agents/sql-reviewer.md` | SQL 다각도 리뷰 |
+| `agents/legacy-decoder.md` | 레거시 코드 역공학 |
+| `agents/doc-syncer.md` | 코드 ↔ 문서 동기화 점검 |
+
+> 본 저장소 내의 `agents/`·`skills/` 경로는 *플러그인 소스*이며, 설치된 대상 프로젝트에서 출력되는 결과물은 여전히 대상 프로젝트의 `.claude/skills/...`·`.claude/agents/...`에 기록된다. 에이전트/스킬 본문 내부의 `.claude/...` 경로는 *대상 프로젝트* 경로를 의미한다.
 
 ## 자동 워크플로우
 
@@ -56,16 +62,22 @@
 
 ## 에이전트 수정
 
-에이전트 개선은 `.claude/agents/` 파일을 직접 수정한다.  
+에이전트 개선은 `agents/[name].md` 파일을 직접 수정한다.  
 변경사항은 아래 변경 이력 테이블에 기록한다 (revfactory/harness Phase 5-4 템플릿).
 
 새 에이전트 추가:
-1. `.claude/agents/[name].md` 작성 (frontmatter + 본문)
-2. 호출하는 오케스트레이터 스킬에 등록
+1. `agents/[name].md` 작성 (frontmatter + 본문)
+2. 호출하는 오케스트레이터 스킬(`skills/<name>/SKILL.md`)에 등록
 3. 변경 이력 테이블에 기록
+
+새 스킬 추가:
+1. `skills/[name]/SKILL.md` 폴더 + 파일 생성 (frontmatter 필수)
+2. 변경 이력 테이블에 기록
 
 ## 변경 이력
 
 | 날짜 | 변경 내용 | 대상 | 사유 |
 |------|----------|------|------|
 | 2026-06-02 | harness-new 기반 확장 — P0(impact-analyzer, change-safety) + P1(pattern-extractor, migration-planner) + P2(test-generator, sql-reviewer, legacy-decoder, doc-syncer) + 워크플로우 스킬 5종(analyze-impact, safe-modify, scaffold-feature, plan-migration, review-sql) + analyzer 심층 분석(의존성 그래프, 데이터 흐름, 트랜잭션, 외부 통신, 환경 분기, 데드 코드) + 인덱스 레이어(_workspace/index/*.json) | 전체 | ITO/SI 조직의 수정/개발/마이그레이션 작업까지 끊김 없이 지원하기 위함 |
+| 2026-06-02 | Claude Code 플러그인 표준 레이아웃으로 재구성 — `.claude/agents/`·`.claude/skills/` 중복본 제거, 루트 `agents/`·`skills/<name>/SKILL.md` 단일 source-of-truth로 정리, `.claude-plugin/marketplace.json`·`plugin.json` 추가 | 저장소 구조 | `/plugin marketplace add Malburi/harness-ito`로 설치 가능하도록 |
+| 2026-06-02 | Vue.js 스택 지원 추가 — Vue 2/3, Nuxt 2/3, Pinia/Vuex, Vue Router, Vite, Vue CLI 탐지 + QA Boundary + 마이그레이션 매핑 (Vue 2→3, Vuex→Pinia, Nuxt 2→3, Vue CLI→Vite) | analyzer / qa / docs/stack-matrix / README | 프런트엔드 스택 커버리지 확장 |
