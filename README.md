@@ -13,7 +13,7 @@ Claude Code에서 한 줄로 설치:
 /plugin install harness-ito
 ```
 
-설치되면 12개 에이전트(`analyzer`, `writer`, `validator`, `qa`, `impact-analyzer`, `change-safety`, `migration-planner`, `test-generator`, `sql-reviewer`, `legacy-decoder`, `doc-syncer`, `pattern-extractor`)와 6개 워크플로우 스킬(`harness-init`, `analyze-impact`, `safe-modify`, `scaffold-feature`, `plan-migration`, `review-sql`)이 자동 로드된다.
+설치되면 14개 에이전트(`analyzer`, `writer`, `validator`, `qa`, `impact-analyzer`, `change-safety`, `migration-planner`, `test-generator`, `sql-reviewer`, `legacy-decoder`, `doc-syncer`, `pattern-extractor`, `logic-tracer`, `feature-finder`)와 8개 워크플로우 스킬(`harness-init`, `analyze-impact`, `safe-modify`, `scaffold-feature`, `plan-migration`, `review-sql`, `trace-logic`, `find-feature`)이 자동 로드된다.
 
 대상 프로젝트에서 바로:
 
@@ -37,8 +37,8 @@ cp harness-ito/CLAUDE.md /path/to/your/project/
 |------|------------|-------------|
 | 코드베이스 분석 | 7단계 분석 | 15단계 (의존성 그래프, 데이터 흐름, 트랜잭션 경계, 외부 통신, 환경 분기, 인증/인가, 데드 코드 추가) |
 | 인덱싱 | 없음 (일회성 마크다운) | `_workspace/index/*.json` 8종 (call_graph, symbols, sql_usage, schema, transactions, external_io, env_branches, dead_code) |
-| 생성 스킬 | 3종 (trace, scaffolder, find-logic) | 8종 (기존 3종 + analyze-impact, safe-modify, scaffold-feature, plan-migration, review-sql) |
-| 에이전트 | 4종 (analyzer, writer, validator, qa) | 12종 (기존 4종 + pattern-extractor, impact-analyzer, change-safety, migration-planner, test-generator, sql-reviewer, legacy-decoder, doc-syncer) |
+| 생성 스킬 | 3종 (trace, scaffolder, find-logic) | 8종 (기존 3종 + analyze-impact, safe-modify, scaffold-feature, plan-migration, review-sql, **trace-logic, find-feature**) |
+| 에이전트 | 4종 (analyzer, writer, validator, qa) | 14종 (기존 4종 + pattern-extractor, impact-analyzer, change-safety, migration-planner, test-generator, sql-reviewer, legacy-decoder, doc-syncer, **logic-tracer, feature-finder**) |
 | 수정 안전성 | 없음 | impact-analyzer + change-safety로 사전·사후 게이트 |
 | 마이그레이션 | 없음 | migration-planner로 인벤토리·매핑·단계별 계획·롤백 자동 생성 |
 | SQL 리뷰 | 없음 | sql-reviewer로 사용처·인덱스·N+1·인젝션·DDL 영향 종합 |
@@ -80,6 +80,12 @@ cp harness-ito/CLAUDE.md /path/to/your/project/
 
 "변경 사항 문서 동기화"
   → doc-syncer 호출 → CLAUDE.md/README/ADR 업데이트 권고
+
+"주문 취소 로직 어떻게 돼?"
+  → trace-logic 트리거 → logic-tracer 실행 → 진입점→Controller→Service→DB 흐름 리포트
+
+"결제 관련 코드 어디 있어?"
+  → find-feature 트리거 → feature-finder 실행 → 레이어별 파일·클래스·SQL 목록
 ```
 
 ## 지원 스택 (자동 탐지 확장)
