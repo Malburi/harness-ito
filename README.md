@@ -39,6 +39,7 @@ cp harness-ito/CLAUDE.md /path/to/your/project/
 | 인덱싱 | 없음 (일회성 마크다운) | `_workspace/index/*.json` 8종 (call_graph, symbols, sql_usage, schema, transactions, external_io, env_branches, dead_code) |
 | 생성 스킬 | 3종 (trace, scaffolder, find-logic) | 8종 (기존 3종 + analyze-impact, safe-modify, scaffold-feature, plan-migration, review-sql, **trace-logic, find-feature**) |
 | 에이전트 | 4종 (analyzer, writer, validator, qa) | 14종 (기존 4종 + pattern-extractor, impact-analyzer, change-safety, migration-planner, test-generator, sql-reviewer, legacy-decoder, doc-syncer, **logic-tracer, feature-finder**) |
+| 모델 최적화 | 단일 모델 | opus 5종 (심층 분석·추론) / sonnet 9종 (패턴 처리·검증) |
 | 수정 안전성 | 없음 | impact-analyzer + change-safety로 사전·사후 게이트 |
 | 마이그레이션 | 없음 | migration-planner로 인벤토리·매핑·단계별 계획·롤백 자동 생성 |
 | SQL 리뷰 | 없음 | sql-reviewer로 사용처·인덱스·N+1·인젝션·DDL 영향 종합 |
