@@ -9,5 +9,10 @@
   "homepage": "https://github.com/Malburi/harness-ito",
   "repository": "https://github.com/Malburi/harness-ito",
   "license": "MIT",
-  "keywords": ["harness", "agents", "skills", "ito", "si", "legacy", "migration", "code-analysis", "sql-review"]
+  "keywords": ["harness", "agents", "skills", "ito", "si", "legacy", "migration", "code-analysis", "sql-review"],
+  "source": {
+    "type": "github",
+    "repo": "Malburi/harness-ito",
+    "ref": "main"
+  }
 }
