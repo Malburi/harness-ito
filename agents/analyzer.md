@@ -23,11 +23,12 @@ model: opus
 
 ### 실행 모드
 
-| 모드 | 동작 |
-|------|------|
-| `init` (기본) | Step 1~15 전체 실행. 최초 분석. |
-| `incremental` | 기존 `_workspace/index/*.json`을 로드해 git diff 또는 mtime 기반으로 변경 파일만 재분석 |
-| `feature-scoped` | 사용자가 지정한 키워드/경로 범위만 분석 (특정 기능 분석 시 사용) |
+| 모드 | 동작 | 사용 Tier |
+|------|------|---------|
+| `lite` | Phase A만 (Step 1~7). 인덱스 생성 없음. 빠른 스택/구조 파악. | Lite |
+| `init` (기본) | Phase A + Phase B (tier에 따라 선택적). 최초 전체 분석. | Standard / Full |
+| `incremental` | 기존 `_workspace/index/*.json`을 로드해 git diff 또는 mtime 기반으로 변경 파일만 재분석 | 모든 Tier |
+| `feature-scoped` | 사용자가 지정한 키워드/경로 범위만 분석 (특정 기능 분석 시 사용) | 모든 Tier |
 
 ---
 
@@ -115,6 +116,19 @@ model: opus
 ---
 
 ## Phase B: 심층 분석 (NEW — 수정/개발/마이그레이션 지원)
+
+> **실행 조건:** `mode: lite`이면 Phase B 전체 스킵. `mode: init` + Standard Tier이면 아래 표에서 해당 스택 스텝만 실행.
+>
+> | Step | Standard에서 실행 조건 | Full |
+> |------|----------------------|------|
+> | 8 (의존성 그래프) | 항상 | 항상 |
+> | 9 (데이터 흐름) | DB/ORM 탐지 시 | 항상 |
+> | 10 (트랜잭션 경계) | DB/ORM 탐지 시 | 항상 |
+> | 11 (외부 통신) | HTTP 클라이언트·MQ 탐지 시 | 항상 |
+> | 12 (비동기/스케줄) | `@Scheduled`·`@Async`·cron 탐지 시 | 항상 |
+> | 13 (환경 분기) | 프로파일 설정 파일 2개+ 탐지 시 | 항상 |
+> | 14 (인증/인가) | Security 설정 탐지 시 | 항상 |
+> | 15 (데드 코드) | 스킵 | 항상 |
 
 ### Step 8: 의존성 그래프 추출
 
@@ -383,13 +397,15 @@ Write 도구로 다음 형식의 리포트를 작성한다. 반환 메시지는 
 
 호출 컨텍스트(orchestrator)에 따라 Phase 실행 범위를 조정한다:
 
-| 호출 컨텍스트 | 필수 Phase | 선택 Phase |
-|--------------|----------|----------|
-| `harness-init` (최초) | A, B, C | D (DB 접속 가능 시) |
-| `analyze-impact` | A 캐시 활용 + B Step 8/9/10 | — |
-| `safe-modify` | A 캐시 활용 + B Step 8/10/11 | — |
-| `scaffold-feature` | A 캐시 활용 + B Step 8 | — |
-| `plan-migration` | A, B 전체, D | — |
-| `review-sql` | A + B Step 9/10, D | — |
+| 호출 컨텍스트 | Tier/모드 | 필수 Phase | 선택 Phase |
+|--------------|---------|----------|----------|
+| `harness-init` Lite | lite/sonnet | A | — |
+| `harness-init` Standard | init/sonnet | A, B(조건부) | D (DB 접속 가능 시) |
+| `harness-init` Full | init/opus | A, B, C | D (DB 접속 가능 시) |
+| `analyze-impact` | incremental/sonnet | A 캐시 활용 + B Step 8/9/10 | — |
+| `safe-modify` | incremental/sonnet | A 캐시 활용 + B Step 8/10/11 | — |
+| `scaffold-feature` | incremental/sonnet | A 캐시 활용 + B Step 8 | — |
+| `plan-migration` | init/opus | A, B 전체, D | — |
+| `review-sql` | incremental/sonnet | A + B Step 9/10, D | — |
 
 `_workspace/index/`가 존재하고 mtime이 코드보다 최신이면 캐시를 우선 사용한다 (`incremental` 모드).
