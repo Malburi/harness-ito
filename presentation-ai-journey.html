@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 적용 여정 — Persona에서 Harness Engineering까지</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --blue:#1d4ed8; --blue-l:#dbeafe; --cyan:#0891b2; --cyan-l:#cffafe;
+  --green:#15803d; --green-l:#dcfce7; --red:#b91c1c; --red-l:#fee2e2;
+  --yellow:#92400e; --yellow-l:#fef3c7; --purple:#6d28d9; --purple-l:#ede9fe;
+  --slate:#475569; --text:#0f172a; --border:#e2e8f0; --card:#fff; --bg:#f1f5f9;
+}
+body {
+  font-family:'Malgun Gothic','Apple SD Gothic Neo','Segoe UI',sans-serif;
+  background:var(--bg); color:var(--text); overflow:hidden; height:100vh;
+}
+.slide {
+  display:none; position:absolute; inset:0; width:100%; height:100vh;
+  padding:36px 68px 58px; flex-direction:column;
+}
+.slide.active { display:flex; }
+.hdr { margin-bottom:22px; padding-bottom:14px; border-bottom:2px solid var(--border); }
+.hdr-num { font-size:12px; font-weight:900; color:var(--blue); letter-spacing:2.5px; text-transform:uppercase; margin-bottom:5px; }
+.hdr-title { font-size:31px; font-weight:900; line-height:1.22; letter-spacing:-.4px; }
+.hdr-title em { font-style:normal; color:var(--blue); }
+.hdr-sub { font-size:15px; color:var(--slate); line-height:1.55; margin-top:5px; }
+.body { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.card {
+  background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+  padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:800; }
+.bb { background:var(--blue-l); color:var(--blue); }
+.bc { background:var(--cyan-l); color:var(--cyan); }
+.bg { background:var(--green-l); color:var(--green); }
+.by { background:var(--yellow-l); color:var(--yellow); }
+.br { background:var(--red-l); color:var(--red); }
+.bp { background:var(--purple-l); color:var(--purple); }
+.info {
+  border-radius:10px; padding:12px 15px; font-size:13.5px; line-height:1.6;
+  display:flex; gap:10px; align-items:flex-start;
+}
+.info-b { background:var(--blue-l); border:1.5px solid #93c5fd; color:var(--blue); }
+.info-y { background:var(--yellow-l); border:1.5px solid #fde68a; color:var(--yellow); }
+.info-g { background:var(--green-l); border:1.5px solid #86efac; color:var(--green); }
+
+#s1 {
+  background:linear-gradient(140deg,#12205a 0%,#1d4ed8 58%,#0891b2 100%);
+  color:#fff; justify-content:center; padding:80px 100px;
+}
+.cover-kicker {
+  font-size:13px; font-weight:800; letter-spacing:3px; text-transform:uppercase;
+  color:rgba(255,255,255,.6); margin-bottom:18px; display:flex; gap:10px; align-items:center;
+}
+.cover-kicker::before { content:''; width:38px; height:2px; background:rgba(255,255,255,.45); }
+.cover-title { font-size:58px; font-weight:900; line-height:1.12; letter-spacing:-1.4px; max-width:850px; }
+.cover-title em { font-style:normal; color:#7dd3fc; }
+.cover-sub { font-size:21px; line-height:1.6; color:rgba(255,255,255,.75); margin-top:20px; max-width:760px; }
+.cover-meta { display:flex; gap:36px; margin-top:42px; }
+.cover-meta .k { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.45); font-weight:800; }
+.cover-meta .v { font-size:16px; color:rgba(255,255,255,.92); margin-top:3px; font-weight:700; }
+.cover-stack { position:absolute; right:80px; top:92px; display:flex; flex-direction:column; gap:10px; }
+.cover-chip {
+  width:210px; padding:14px 18px; border-radius:12px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(10px);
+}
+.cover-chip strong { display:block; font-size:18px; color:#fff; }
+.cover-chip span { display:block; font-size:12px; color:rgba(255,255,255,.62); margin-top:2px; }
+
+.project-card { display:flex; gap:14px; align-items:flex-start; min-height:148px; }
+.project-icon {
+  width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.project-card h4 { font-size:17px; font-weight:900; margin-bottom:6px; }
+.project-card p { font-size:13.5px; color:var(--slate); line-height:1.55; }
+.project-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+
+.pain-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; flex:1; }
+.pain {
+  display:flex; gap:12px; align-items:flex-start; background:#fff; border:1.5px solid var(--border);
+  border-radius:12px; padding:15px 16px;
+}
+.pain .ico { font-size:21px; width:30px; flex-shrink:0; }
+.pain h4 { font-size:15px; font-weight:900; margin-bottom:4px; }
+.pain p { font-size:13px; color:var(--slate); line-height:1.5; }
+
+.timeline { display:grid; grid-template-columns:repeat(4,1fr); gap:0; flex:1; align-items:stretch; }
+.stage {
+  background:#fff; border:1.5px solid var(--border); padding:18px 18px;
+  display:flex; flex-direction:column; position:relative;
+}
+.stage:first-child { border-radius:14px 0 0 14px; }
+.stage:last-child { border-radius:0 14px 14px 0; }
+.stage:not(:last-child)::after {
+  content:'→'; position:absolute; right:-16px; top:50%; transform:translateY(-50%);
+  z-index:2; width:32px; height:32px; border-radius:50%; background:#fff; border:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center; color:var(--blue); font-weight:900;
+}
+.stage .num { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--blue); font-weight:900; margin-bottom:10px; }
+.stage .big { font-size:31px; margin-bottom:10px; }
+.stage h4 { font-size:18px; font-weight:900; margin-bottom:8px; }
+.stage p { font-size:13px; color:var(--slate); line-height:1.55; margin-bottom:12px; }
+.stage ul { list-style:none; display:flex; flex-direction:column; gap:7px; margin-top:auto; }
+.stage li { font-size:12.3px; color:var(--text); border-left:3px solid var(--border); padding-left:8px; line-height:1.45; }
+
+.tool-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; flex:1; }
+.tool {
+  background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:20px;
+  display:flex; flex-direction:column;
+}
+.tool .logo { font-size:34px; margin-bottom:12px; }
+.tool h4 { font-size:20px; font-weight:900; margin-bottom:7px; }
+.tool p { font-size:13.5px; color:var(--slate); line-height:1.55; margin-bottom:14px; }
+.tool .learned { margin-top:auto; border-top:1px solid #eef2f7; padding-top:12px; font-size:13px; line-height:1.5; }
+.tool .learned strong { color:var(--blue); }
+
+.migration {
+  display:grid; grid-template-columns:1fr 72px 1fr; gap:0; align-items:stretch; flex:1;
+}
+.stack-box {
+  background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:20px;
+  display:flex; flex-direction:column;
+}
+.stack-box h4 { font-size:20px; font-weight:900; margin-bottom:10px; }
+.stack-box .stack-title { font-size:36px; font-weight:900; line-height:1.1; margin-bottom:10px; }
+.stack-box p { font-size:13.5px; color:var(--slate); line-height:1.6; }
+.stack-list { display:flex; flex-direction:column; gap:8px; margin-top:16px; }
+.stack-list div { font-size:13px; padding:8px 10px; border-radius:8px; background:#f8fafc; border:1px solid var(--border); }
+.mig-arrow { display:flex; align-items:center; justify-content:center; font-size:30px; color:#94a3b8; }
+
+.harness-map {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:1;
+}
+.map-panel {
+  background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:18px 20px;
+}
+.map-panel h4 { font-size:17px; font-weight:900; margin-bottom:12px; display:flex; gap:8px; align-items:center; }
+.map-list { display:flex; flex-direction:column; gap:9px; }
+.map-item { display:grid; grid-template-columns:110px 1fr; gap:10px; padding:9px 0; border-bottom:1px solid #f1f5f9; }
+.map-item:last-child { border-bottom:none; }
+.map-item .k { font-size:12px; font-weight:900; color:var(--slate); }
+.map-item .v { font-size:13px; color:var(--text); line-height:1.5; }
+
+.compare-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:1; }
+.compare { background:#fff; border:1.5px solid var(--border); border-radius:14px; overflow:hidden; }
+.compare .top { padding:15px 18px; font-size:15px; font-weight:900; border-bottom:1px solid var(--border); }
+.compare.bad .top { background:var(--red-l); color:var(--red); }
+.compare.good .top { background:var(--green-l); color:var(--green); }
+.compare ul { list-style:none; padding:18px 20px; display:flex; flex-direction:column; gap:13px; }
+.compare li { font-size:14px; line-height:1.55; color:var(--text); display:flex; gap:10px; }
+.compare li span { flex-shrink:0; }
+
+#s10 {
+  background:linear-gradient(140deg,#12205a 0%,#1d4ed8 58%,#0891b2 100%);
+  color:#fff; justify-content:center; align-items:center; text-align:center;
+}
+.close-title { font-size:46px; line-height:1.25; font-weight:900; max-width:950px; }
+.close-title em { font-style:normal; color:#7dd3fc; }
+.close-sub { margin-top:18px; font-size:18px; color:rgba(255,255,255,.72); line-height:1.65; max-width:780px; }
+.close-cards { display:flex; gap:14px; margin-top:40px; }
+.close-card {
+  background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.22);
+  border-radius:14px; padding:18px 24px; min-width:190px;
+}
+.close-card strong { display:block; font-size:27px; color:#fff; }
+.close-card span { display:block; font-size:12.5px; color:rgba(255,255,255,.62); margin-top:4px; }
+
+.nav {
+  position:fixed; left:0; right:0; bottom:0; height:50px; background:rgba(255,255,255,.96);
+  border-top:1.5px solid var(--border); display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; z-index:20; backdrop-filter:blur(12px);
+}
+.nav-title { font-size:13px; font-weight:700; color:var(--slate); }
+.dots { display:flex; gap:6px; }
+.dot { width:7px; height:7px; border-radius:4px; background:#cbd5e1; cursor:pointer; transition:all .2s; }
+.dot.active { width:22px; background:var(--blue); }
+.nav-controls { display:flex; align-items:center; gap:8px; }
+.nav-btn {
+  width:34px; height:34px; border-radius:8px; border:1.5px solid var(--border);
+  background:#f8fafc; color:var(--text); cursor:pointer; font-size:15px;
+}
+.page { min-width:44px; text-align:center; font-size:13px; font-weight:800; color:var(--slate); }
+.prog { position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,var(--blue),var(--cyan)); z-index:30; }
+
+@media (max-width: 900px) {
+  body { height:auto; overflow:auto; }
+  .slide { position:relative; min-height:100vh; height:auto; padding:24px 20px 74px; }
+  #s1 { padding:42px 24px 80px; }
+  .cover-title { font-size:38px; letter-spacing:-.4px; }
+  .cover-sub { font-size:17px; }
+  .cover-stack { position:static; margin-top:28px; }
+  .cover-chip { width:100%; }
+  .cover-meta { flex-wrap:wrap; gap:18px 28px; }
+  .hdr-title { font-size:23px; word-break:keep-all; overflow-wrap:anywhere; }
+  .body { overflow:visible; }
+  .g2, .g3, .g4, .pain-grid, .timeline, .tool-grid, .migration,
+  .harness-map, .compare-row { grid-template-columns:1fr; }
+  .timeline { gap:10px; }
+  .stage, .stage:first-child, .stage:last-child { border-radius:14px; }
+  .stage::after { display:none !important; }
+  .mig-arrow { transform:rotate(90deg); padding:12px 0; }
+  .nav-title { display:none; }
+  .dots { max-width:50vw; flex-wrap:wrap; }
+}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+
+<section class="slide active" id="s1">
+  <div class="cover-stack">
+    <div class="cover-chip"><strong>Persona</strong><span>AI에게 역할을 주던 단계</span></div>
+    <div class="cover-chip"><strong>Prompt</strong><span>질문을 잘 쓰던 단계</span></div>
+    <div class="cover-chip"><strong>Context</strong><span>근거를 같이 주던 단계</span></div>
+    <div class="cover-chip"><strong>Harness</strong><span>프로젝트 지식 체계를 만들던 단계</span></div>
+  </div>
+  <div class="cover-kicker">AI Adoption Journey</div>
+  <div class="cover-title">레거시 프로젝트에서<br><em>Harness Engineering</em>까지</div>
+  <div class="cover-sub">
+    유지보수·개발·마이그레이션 현장에서 AI를 어떻게 써봤고,<br>
+    왜 단순 프롬프트가 아니라 하네스 엔지니어링까지 오게 됐는지 소개합니다.
+  </div>
+  <div class="cover-meta">
+    <div><div class="k">Projects</div><div class="v">hiclass · LMS · 전자설문 · self-learning</div></div>
+    <div><div class="k">Tools</div><div class="v">Claude Code · Codex · Antigravity</div></div>
+    <div><div class="k">Now</div><div class="v">HD현대 Claude Code 기반 harness</div></div>
+  </div>
+</section>
+
+<section class="slide" id="s2">
+  <div class="hdr">
+    <div class="hdr-num">01 — Background</div>
+    <div class="hdr-title">출발점은 <em>레거시 프로젝트 유지보수와 개발</em>이었습니다</div>
+    <div class="hdr-sub">AI를 실험한 이유는 새 기술을 써보고 싶어서라기보다, 실제 프로젝트에서 반복되는 분석·수정·전환 부담을 줄이기 위해서였습니다.</div>
+  </div>
+  <div class="body">
+    <div class="g4" style="flex:1">
+      <div class="card project-card">
+        <div class="project-icon" style="background:var(--blue-l)">🏫</div>
+        <div>
+          <h4>hiclass</h4>
+          <p>운영 중인 교육/학습 시스템 유지보수와 기능 개선. 기존 흐름을 깨지 않고 수정 영향도를 파악하는 일이 중요했습니다.</p>
+          <div class="project-tags"><span class="badge bb">운영</span><span class="badge by">레거시</span></div>
+        </div>
+      </div>
+      <div class="card project-card">
+        <div class="project-icon" style="background:var(--green-l)">📚</div>
+        <div>
+          <h4>LMS</h4>
+          <p>학습 관리 기능의 유지보수와 개발. 화면, API, DB, 배치가 얽힌 흐름을 빠르게 이해해야 했습니다.</p>
+          <div class="project-tags"><span class="badge bg">개발</span><span class="badge bc">업무흐름</span></div>
+        </div>
+      </div>
+      <div class="card project-card">
+        <div class="project-icon" style="background:var(--purple-l)">📝</div>
+        <div>
+          <h4>전자설문</h4>
+          <p>설문 생성, 응답, 집계, 통계 쪽 유지보수. 작은 쿼리 변경도 결과 화면까지 이어지는 구조였습니다.</p>
+          <div class="project-tags"><span class="badge bp">SQL</span><span class="badge bb">통계</span></div>
+        </div>
+      </div>
+      <div class="card project-card">
+        <div class="project-icon" style="background:var(--cyan-l)">🔄</div>
+        <div>
+          <h4>self-learning</h4>
+          <p>.NET 기반 시스템을 Vue3 + FastAPI 구조로 전환하는 마이그레이션. 단순 변환보다 도메인 재해석이 핵심이었습니다.</p>
+          <div class="project-tags"><span class="badge br">Migration</span><span class="badge bc">Vue3/FastAPI</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="info info-b" style="margin-top:14px">
+      <span>💡</span>
+      <div><strong>핵심 배경:</strong> AI가 코드를 대신 짜는지보다, 기존 시스템을 더 빨리 이해하고 안전하게 바꿀 수 있는지가 더 중요했습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s3">
+  <div class="hdr">
+    <div class="hdr-num">02 — Reality</div>
+    <div class="hdr-title">레거시 현장에서 AI를 적용하려면 <em>코딩보다 이해가 먼저</em>였습니다</div>
+    <div class="hdr-sub">기능 하나를 추가하더라도 기존 업무 규칙, 화면 흐름, DB 관계, 예외 처리를 모르면 AI 결과도 위험해집니다.</div>
+  </div>
+  <div class="body">
+    <div class="pain-grid">
+      <div class="pain"><div class="ico">🧭</div><div><h4>업무 맥락이 코드 밖에 있음</h4><p>왜 이렇게 만들었는지, 어떤 예외가 있는지는 코드만 봐서는 잘 보이지 않습니다.</p></div></div>
+      <div class="pain"><div class="ico">🔗</div><div><h4>수정 영향도가 여러 레이어로 퍼짐</h4><p>화면, API, 서비스, DAO, SQL, 배치가 연결되어 작은 수정도 운영 장애로 이어질 수 있습니다.</p></div></div>
+      <div class="pain"><div class="ico">🧱</div><div><h4>레거시와 신규 스택이 공존</h4><p>.NET, Java, Vue, FastAPI처럼 서로 다른 기술을 동시에 이해해야 했습니다.</p></div></div>
+      <div class="pain"><div class="ico">📉</div><div><h4>AI 답변 품질이 컨텍스트에 크게 의존</h4><p>프롬프트를 잘 써도 프로젝트 구조를 모르면 일반론 답변에서 벗어나기 어렵습니다.</p></div></div>
+      <div class="pain"><div class="ico">🔒</div><div><h4>보안과 권한이 실제 제약</h4><p>소스, DB 스키마, 업무 문서를 아무 데나 붙여 넣을 수 없습니다.</p></div></div>
+      <div class="pain"><div class="ico">🧪</div><div><h4>검증 없는 자동화는 위험</h4><p>AI가 만든 코드보다, 그 코드가 기존 시스템에서 안전한지 확인하는 절차가 더 중요했습니다.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s4">
+  <div class="hdr">
+    <div class="hdr-num">03 — Evolution</div>
+    <div class="hdr-title">AI 적용 방식은 <em>역할 → 프롬프트 → 컨텍스트 → 하네스</em>로 바뀌었습니다</div>
+    <div class="hdr-sub">처음에는 질문을 잘 쓰는 문제가 핵심처럼 보였지만, 실제 프로젝트에서는 “AI가 무엇을 근거로 일하게 할 것인가”가 더 중요했습니다.</div>
+  </div>
+  <div class="body">
+    <div class="timeline">
+      <div class="stage">
+        <div class="num">Step 1</div><div class="big">🎭</div><h4>Persona</h4>
+        <p>AI에게 역할을 부여했습니다. “너는 시니어 개발자야”, “DBA처럼 봐줘” 같은 방식입니다.</p>
+        <ul><li>답변 톤과 관점은 좋아짐</li><li>프로젝트 사실관계는 여전히 부족</li><li>역할만으로는 검증 불가</li></ul>
+      </div>
+      <div class="stage">
+        <div class="num">Step 2</div><div class="big">✍️</div><h4>Prompt Engineering</h4>
+        <p>질문 구조를 개선했습니다. 목적, 제약, 출력 형식, 예시를 명확히 주는 방식입니다.</p>
+        <ul><li>결과물이 더 정돈됨</li><li>반복 작업에는 효과 있음</li><li>긴 프로젝트 맥락은 매번 다시 설명해야 함</li></ul>
+      </div>
+      <div class="stage">
+        <div class="num">Step 3</div><div class="big">📚</div><h4>Context Engineering</h4>
+        <p>코드, 문서, DB 정보, 업무 규칙을 함께 제공하기 시작했습니다.</p>
+        <ul><li>프로젝트 맞춤 답변 가능</li><li>컨텍스트 선별이 중요해짐</li><li>정보가 많아질수록 관리가 어려움</li></ul>
+      </div>
+      <div class="stage">
+        <div class="num">Step 4</div><div class="big">🧩</div><h4>Harness Engineering</h4>
+        <p>컨텍스트를 일회성으로 주는 게 아니라, 프로젝트 지식 체계와 역할별 워크플로우로 구성했습니다.</p>
+        <ul><li>인덱스와 패턴을 재사용</li><li>에이전트별 역할 분리</li><li>분석-수정-검증 흐름을 표준화</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s5">
+  <div class="hdr">
+    <div class="hdr-num">04 — Tools</div>
+    <div class="hdr-title">Claude Code, Codex, Antigravity를 써보며 <em>각 도구의 강점</em>을 나눠봤습니다</div>
+    <div class="hdr-sub">도구를 하나로 정답 내리기보다, 어떤 작업에 어떤 방식이 맞는지 직접 프로젝트에 적용해보는 과정이었습니다.</div>
+  </div>
+  <div class="body">
+    <div class="tool-grid">
+      <div class="tool">
+        <div class="logo">🧠</div><h4>Claude Code</h4>
+        <p>코드베이스 맥락을 길게 다루고, 대화형으로 설계/분석/수정 흐름을 이어가기에 좋았습니다.</p>
+        <div class="learned"><strong>배운 점:</strong> 프로젝트 지식을 잘 넣어주면 단순 코딩보다 분석 파트에서 강해집니다.</div>
+      </div>
+      <div class="tool">
+        <div class="logo">🛠️</div><h4>Codex</h4>
+        <p>로컬 워크스페이스에서 파일을 읽고 고치고 검증하는 개발 에이전트 방식에 적합했습니다.</p>
+        <div class="learned"><strong>배운 점:</strong> 수정 자체보다 변경 범위를 좁히고 검증하는 절차가 중요합니다.</div>
+      </div>
+      <div class="tool">
+        <div class="logo">🚦</div><h4>Antigravity</h4>
+        <p>AI 기반 개발 흐름과 작업 자동화 관점에서, 기존 IDE와 다른 방식의 가능성을 확인했습니다.</p>
+        <div class="learned"><strong>배운 점:</strong> 도구가 달라도 결국 필요한 것은 안정적인 컨텍스트와 검증 기준입니다.</div>
+      </div>
+    </div>
+    <div class="info info-y" style="margin-top:14px">
+      <span>⚠️</span>
+      <div><strong>정리:</strong> AI 도구의 차이보다 더 큰 차이는 “프로젝트 지식을 어떻게 구조화해서 AI에게 줄 것인가”였습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s6">
+  <div class="hdr">
+    <div class="hdr-num">05 — Migration Case</div>
+    <div class="hdr-title">self-learning 마이그레이션에서 <em>하네스의 필요성</em>이 더 분명해졌습니다</div>
+    <div class="hdr-sub">.NET에서 Vue3 + FastAPI로 옮기는 일은 문법 변환이 아니라, 기존 업무 규칙을 새 구조에 안전하게 재배치하는 일이었습니다.</div>
+  </div>
+  <div class="body">
+    <div class="migration">
+      <div class="stack-box">
+        <h4>AS-IS</h4>
+        <div class="stack-title" style="color:var(--slate)">.NET 기반</div>
+        <p>기존 화면, 서버 로직, DB 접근, 예외 처리가 한 시스템 안에 강하게 묶여 있었습니다.</p>
+        <div class="stack-list">
+          <div>화면과 서버 흐름이 기존 구조에 결합</div>
+          <div>업무 규칙이 코드 곳곳에 분산</div>
+          <div>테스트보다 운영 경험에 의존</div>
+          <div>변경 영향도 파악이 느림</div>
+        </div>
+      </div>
+      <div class="mig-arrow">→</div>
+      <div class="stack-box">
+        <h4>TO-BE</h4>
+        <div class="stack-title" style="color:var(--blue)">Vue3 + FastAPI</div>
+        <p>프론트와 API를 나누면서도 기존 업무 규칙, 데이터 계약, 예외 처리를 잃지 않아야 했습니다.</p>
+        <div class="stack-list">
+          <div>화면 컴포넌트와 API 계약 분리</div>
+          <div>도메인 규칙을 서비스 레이어로 재정리</div>
+          <div>마이그레이션 단위와 우선순위 설계</div>
+          <div>기존 기능 동등성 검증 필요</div>
+        </div>
+      </div>
+    </div>
+    <div class="info info-b" style="margin-top:14px">
+      <span>💡</span>
+      <div><strong>여기서 얻은 결론:</strong> AI에게 “이걸 Vue3/FastAPI로 바꿔줘”라고 묻는 것보다, 기존 시스템의 규칙·계약·리스크를 먼저 구조화하는 게 더 중요했습니다.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s7">
+  <div class="hdr">
+    <div class="hdr-num">06 — Harness</div>
+    <div class="hdr-title">그래서 현재는 <em>HD현대 Claude Code 기반 Harness Engineering</em>을 만들고 있습니다</div>
+    <div class="hdr-sub">하네스는 AI에게 매번 설명하는 자료가 아니라, 프로젝트를 이해하고 작업하기 위한 지속 가능한 작업 환경입니다.</div>
+  </div>
+  <div class="body">
+    <div class="harness-map">
+      <div class="map-panel">
+        <h4>🧩 하네스가 담는 것</h4>
+        <div class="map-list">
+          <div class="map-item"><div class="k">코드 구조</div><div class="v">모듈, 엔트리포인트, 호출 그래프, 주요 클래스/메서드</div></div>
+          <div class="map-item"><div class="k">DB/SQL</div><div class="v">SQL 사용처, 테이블 관계, 트랜잭션 경계, 성능 위험 후보</div></div>
+          <div class="map-item"><div class="k">업무 패턴</div><div class="v">Controller-Service-DAO, 화면 흐름, 배치, 예외 처리 컨벤션</div></div>
+          <div class="map-item"><div class="k">레거시 지식</div><div class="v">오래된 코드의 목적, 숨은 규칙, 위험 구간, 마이그레이션 후보</div></div>
+          <div class="map-item"><div class="k">검증 기준</div><div class="v">변경 전 확인할 영향도, 테스트 후보, 롤백 포인트</div></div>
+        </div>
+      </div>
+      <div class="map-panel">
+        <h4>🤖 하네스 위에서 하는 일</h4>
+        <div class="map-list">
+          <div class="map-item"><div class="k">영향도 분석</div><div class="v">“이 메서드 바꾸면 어디까지 영향이 가나?”를 직접/간접 경로로 확인</div></div>
+          <div class="map-item"><div class="k">안전한 수정</div><div class="v">변경 전 체크 → 코드 수정 → 검증 → 문서 반영 흐름으로 작업</div></div>
+          <div class="map-item"><div class="k">SQL 리뷰</div><div class="v">N+1, 인덱스, 풀스캔, 권한, 트랜잭션 위험을 사전 점검</div></div>
+          <div class="map-item"><div class="k">스캐폴딩</div><div class="v">기존 프로젝트 컨벤션에 맞춰 기능 뼈대 생성</div></div>
+          <div class="map-item"><div class="k">마이그레이션 계획</div><div class="v">전환 범위, 우선순위, 난이도, 리스크를 근거 기반으로 정리</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s8">
+  <div class="hdr">
+    <div class="hdr-num">07 — Shift</div>
+    <div class="hdr-title">핵심 변화는 <em>AI에게 일을 시키는 방식</em>이 바뀐 것입니다</div>
+    <div class="hdr-sub">프롬프트만 잘 쓰는 단계에서, 프로젝트 지식과 작업 절차를 갖춘 AI 협업 환경을 만드는 단계로 넘어왔습니다.</div>
+  </div>
+  <div class="body">
+    <div class="compare-row">
+      <div class="compare bad">
+        <div class="top">이전 방식: 일회성 AI 사용</div>
+        <ul>
+          <li><span>❌</span><div>매번 코드 일부를 붙여 넣고 같은 배경 설명을 반복합니다.</div></li>
+          <li><span>❌</span><div>AI가 프로젝트 전체 구조를 모르기 때문에 일반론 답변이 많습니다.</div></li>
+          <li><span>❌</span><div>좋은 답변이 나와도 다음 작업에서 재사용하기 어렵습니다.</div></li>
+          <li><span>❌</span><div>수정 결과를 검증하는 기준이 사람마다 달라집니다.</div></li>
+          <li><span>❌</span><div>보안, 권한, 컨텍스트 관리가 체계화되지 않습니다.</div></li>
+        </ul>
+      </div>
+      <div class="compare good">
+        <div class="top">현재 방향: Harness Engineering</div>
+        <ul>
+          <li><span>✅</span><div>프로젝트 지식을 인덱스와 패턴으로 만들어 반복 활용합니다.</div></li>
+          <li><span>✅</span><div>AI가 호출 그래프, SQL, 트랜잭션 등 근거를 보고 답합니다.</div></li>
+          <li><span>✅</span><div>역할별 에이전트와 워크플로우로 작업 품질을 일정하게 만듭니다.</div></li>
+          <li><span>✅</span><div>분석, 수정, 검증, 문서화를 하나의 절차로 묶습니다.</div></li>
+          <li><span>✅</span><div>사내 보안 정책에 맞게 컨텍스트 공유 범위를 통제합니다.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s9">
+  <div class="hdr">
+    <div class="hdr-num">08 — What I Want To Share</div>
+    <div class="hdr-title">제가 공유하고 싶은 건 <em>AI 도구 소개보다 적용 방식</em>입니다</div>
+    <div class="hdr-sub">AI를 잘 쓰는 문제는 결국 우리 프로젝트를 얼마나 잘 설명하고, 안전하게 일하게 만들 수 있느냐의 문제였습니다.</div>
+  </div>
+  <div class="body">
+    <div class="g3" style="flex:1">
+      <div class="card">
+        <div style="font-size:36px;margin-bottom:14px">🧠</div>
+        <h4 style="font-size:20px;font-weight:900;margin-bottom:10px">AI는 맥락 없이는 평범합니다</h4>
+        <p style="font-size:14px;color:var(--slate);line-height:1.6">좋은 모델을 써도 프로젝트 구조, 업무 규칙, 제약 조건을 모르면 답변은 일반론에 머뭅니다.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:36px;margin-bottom:14px">📚</div>
+        <h4 style="font-size:20px;font-weight:900;margin-bottom:10px">컨텍스트는 자료가 아니라 설계 대상입니다</h4>
+        <p style="font-size:14px;color:var(--slate);line-height:1.6">무엇을 AI에게 줄지, 어떤 형식으로 유지할지, 누가 검증할지 정해야 합니다.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:36px;margin-bottom:14px">🛡️</div>
+        <h4 style="font-size:20px;font-weight:900;margin-bottom:10px">자동화보다 안전한 협업이 먼저입니다</h4>
+        <p style="font-size:14px;color:var(--slate);line-height:1.6">AI가 만든 결과를 사람이 판단할 수 있게 근거, 영향도, 검증 절차를 같이 제공해야 합니다.</p>
+      </div>
+    </div>
+    <div class="info info-g" style="margin-top:14px">
+      <span>✅</span>
+      <div><strong>정리:</strong> AI를 프로젝트에 적용한다는 것은 “프롬프트를 잘 쓰는 것”에서 끝나지 않고, 프로젝트 지식과 작업 절차를 엔지니어링하는 일로 확장됩니다.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s10">
+  <div class="close-title">레거시 프로젝트의 AI 적용은<br><em>코드 생성보다 이해와 검증의 자동화</em>에서 시작합니다</div>
+  <div class="close-sub">
+    hiclass, LMS, 전자설문, self-learning에서의 적용 경험을 바탕으로<br>
+    지금은 HD현대 환경에 맞는 Claude Code 기반 harness engineering을 만들어가고 있습니다.
+  </div>
+  <div class="close-cards">
+    <div class="close-card"><strong>Persona</strong><span>역할 부여</span></div>
+    <div class="close-card"><strong>Prompt</strong><span>질문 설계</span></div>
+    <div class="close-card"><strong>Context</strong><span>근거 제공</span></div>
+    <div class="close-card"><strong>Harness</strong><span>지식 체계화</span></div>
+  </div>
+</section>
+
+<div class="nav">
+  <div class="nav-title" id="navTitle"></div>
+  <div class="dots" id="dots"></div>
+  <div class="nav-controls">
+    <button class="nav-btn" onclick="prev()" aria-label="이전 슬라이드" title="이전 슬라이드">←</button>
+    <div class="page" id="page"></div>
+    <button class="nav-btn" onclick="next()" aria-label="다음 슬라이드" title="다음 슬라이드">→</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 10;
+const TITLES = [
+  '표지',
+  '01 · 프로젝트 배경',
+  '02 · 레거시 현장의 현실',
+  '03 · AI 적용 방식의 진화',
+  '04 · 사용해본 AI 도구들',
+  '05 · self-learning 마이그레이션',
+  '06 · HD현대 harness engineering',
+  '07 · 적용 방식의 변화',
+  '08 · 공유하고 싶은 메시지',
+  '마무리'
+];
+const BASE_TITLE = document.title;
+function slideFromHash() {
+  const n = Number((location.hash || '').replace('#s', ''));
+  return Number.isInteger(n) && n >= 1 && n <= TOTAL ? n : 1;
+}
+let cur = slideFromHash();
+const dots = document.getElementById('dots');
+const page = document.getElementById('page');
+const navTitle = document.getElementById('navTitle');
+const prog = document.getElementById('prog');
+for (let i = 1; i <= TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === cur ? ' active' : '');
+  d.title = TITLES[i - 1];
+  d.setAttribute('role', 'button');
+  d.setAttribute('tabindex', '0');
+  d.setAttribute('aria-label', i + '번 슬라이드로 이동');
+  d.onclick = () => go(i);
+  d.onkeydown = e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      go(i);
+    }
+  };
+  dots.appendChild(d);
+}
+function render(updateHash = true) {
+  document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('active', i + 1 === cur));
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === cur));
+  page.textContent = cur + ' / ' + TOTAL;
+  navTitle.textContent = TITLES[cur - 1];
+  prog.style.width = (cur / TOTAL * 100) + '%';
+  document.title = TITLES[cur - 1] + ' · ' + BASE_TITLE;
+  if (updateHash) history.replaceState(null, '', '#s' + cur);
+}
+function next() { if (cur < TOTAL) { cur++; render(); } }
+function prev() { if (cur > 1) { cur--; render(); } }
+function go(n) { cur = Math.max(1, Math.min(TOTAL, n)); render(); }
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); next(); }
+  if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); prev(); }
+  if (e.key === 'Home') { e.preventDefault(); go(1); }
+  if (e.key === 'End') { e.preventDefault(); go(TOTAL); }
+});
+let touchStartX = null;
+document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, { passive:true });
+document.addEventListener('touchend', e => {
+  if (touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) dx < 0 ? next() : prev();
+  touchStartX = null;
+}, { passive:true });
+window.addEventListener('hashchange', () => { cur = slideFromHash(); render(false); });
+render(location.hash !== '#s' + cur);
+</script>
+</body>
+</html>
