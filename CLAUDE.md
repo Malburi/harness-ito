@@ -34,6 +34,7 @@
 | `skills/plan-migration/SKILL.md` | 마이그레이션 계획 워크플로우 |
 | `skills/review-sql/SKILL.md` | SQL 종합 리뷰 워크플로우 |
 | `skills/spec-gate/SKILL.md` | 작업 전 소크라테스식 명세 명확화 워크플로우 (Ouroboros 영감) |
+| `skills/harness-clean/SKILL.md` | harness 전체 제거 워크플로우 (확인 후 안전 삭제) |
 | `skills/trace-logic/SKILL.md` | 기능·API·화면 처리 흐름 추적 워크플로우 |
 | `skills/find-feature/SKILL.md` | 기능명·키워드로 관련 코드 위치 탐색 워크플로우 |
 | `agents/spec-clarifier.md` | Phase -1: 소크라테스 인터뷰 + 모호성 점수화 + 명세 리포트 생성 |
@@ -61,6 +62,7 @@
 |------|---------|
 | 하네스 초기화 전 명세 명확화 | `spec-gate` |
 | 하네스 초기화 / 재초기화 | `harness-init` |
+| 하네스 전체 제거 | `harness-clean` |
 | 변경 영향도 분석 | `analyze-impact` |
 | 안전한 변경 진행 | `safe-modify` |
 | 컨벤션 따라 신규 기능 생성 | `scaffold-feature` |
@@ -95,4 +97,5 @@
 | 2026-06-03 | 로직 탐색 에이전트 2종 추가 — `logic-tracer`(진입점→DB 처리 흐름 추적) + `feature-finder`(기능명·키워드 코드 위치 탐색) + 트리거 스킬 2종(`trace-logic`, `find-feature`) | agents / skills / CLAUDE.md | 특정 로직·기능 위치 탐색 요구 대응 |
 | 2026-06-03 | 에이전트 모델 최적화 — opus→sonnet 8종(change-safety, pattern-extractor, validator, qa, test-generator, sql-reviewer, doc-syncer, logic-tracer). opus 유지 5종(analyzer, writer, legacy-decoder, impact-analyzer, migration-planner) | agents/ | 패턴 기반 처리 작업에 opus 불필요, 비용 절감 |
 | 2026-06-03 | harness-init 3-Tier 적응 실행 — 복잡도 점수(파일수+DB/ORM+레거시+멀티모듈+외부시스템) 기반 Lite/Standard/Full 자동 분기. Lite: analyzer lite(sonnet)+writer(sonnet)+validator, QA·pattern 스킵. Standard: analyzer init(sonnet)+선택적 Phase B+writer(sonnet)+pattern+validator, QA 스킵. Full: 기존 파이프라인. 사용자 override 키워드 지원. | skills/harness-init / agents/analyzer | 프로젝트 규모 무관 전체 파이프라인 실행으로 인한 토큰·시간 낭비 해소 |
+| 2026-06-04 | harness-clean 스킬 추가 — CLAUDE.md·.claude/skills/·agents/·patterns/·_workspace/ 안전 제거 + 플러그인 언인스톨 안내 | skills/harness-clean / CLAUDE.md | 마음에 안 들면 롤백할 수 있어야 표준으로 쓸 수 있음 |
 | 2026-06-04 | Ouroboros 명세 게이트 + Karpathy eval 루프 접목 — spec-clarifier(sonnet, Phase -1: 소크라테스 인터뷰·모호성점수·GO신호) + harness-evaluator(sonnet, Phase 4: 4차원 품질평가·PASS/PARTIAL/RETRY·fix_targets 기반 타겟 재생성·1회 루프) + spec-gate 스킬 + harness-init Phase -1/-4 추가 + analyzer에 spec_context 전달 | agents/spec-clarifier, agents/harness-evaluator, skills/spec-gate, skills/harness-init, CLAUDE.md | 명세 모호성 제거(Ouroboros)·자기 개선 루프(Karpathy)로 harness 생성 품질 향상 |
