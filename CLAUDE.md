@@ -16,6 +16,7 @@
 
 **팀 구성:**
 - 분석/생성 파이프라인: `analyzer` → `writer` → (`pattern-extractor`) → `validator` → `qa`
+- 품질 루프: `spec-clarifier` (Phase -1, 사전 명세화) + `harness-evaluator` (Phase 4, 사후 eval)
 - 작업용 에이전트: `impact-analyzer`, `change-safety`, `migration-planner`, `test-generator`, `sql-reviewer`, `legacy-decoder`, `doc-syncer`, `logic-tracer`, `feature-finder`
 
 ## 파일 구조
@@ -32,8 +33,11 @@
 | `skills/scaffold-feature/SKILL.md` | 컨벤션 기반 신규 기능 스캐폴딩 |
 | `skills/plan-migration/SKILL.md` | 마이그레이션 계획 워크플로우 |
 | `skills/review-sql/SKILL.md` | SQL 종합 리뷰 워크플로우 |
+| `skills/spec-gate/SKILL.md` | 작업 전 소크라테스식 명세 명확화 워크플로우 (Ouroboros 영감) |
 | `skills/trace-logic/SKILL.md` | 기능·API·화면 처리 흐름 추적 워크플로우 |
 | `skills/find-feature/SKILL.md` | 기능명·키워드로 관련 코드 위치 탐색 워크플로우 |
+| `agents/spec-clarifier.md` | Phase -1: 소크라테스 인터뷰 + 모호성 점수화 + 명세 리포트 생성 |
+| `agents/harness-evaluator.md` | Phase 4: 4차원 품질 평가 (커버리지·정확도·실행가능성·컨텍스트) + fix_targets 반환 |
 | `agents/analyzer.md` | Phase 2-1: 심층 분석 (스택 + 의존성 그래프 + 데이터 흐름 + 트랜잭션 + 외부 통신 + 인덱스 생성) |
 | `agents/writer.md` | Phase 2-2: 하네스 파일 + 워크플로우 스킬 생성 |
 | `agents/pattern-extractor.md` | Phase 2-2.5: 컨벤션 추출 (writer 직후) |
@@ -55,6 +59,7 @@
 
 | 상황 | 트리거 스킬 |
 |------|---------|
+| 하네스 초기화 전 명세 명확화 | `spec-gate` |
 | 하네스 초기화 / 재초기화 | `harness-init` |
 | 변경 영향도 분석 | `analyze-impact` |
 | 안전한 변경 진행 | `safe-modify` |
@@ -90,3 +95,4 @@
 | 2026-06-03 | 로직 탐색 에이전트 2종 추가 — `logic-tracer`(진입점→DB 처리 흐름 추적) + `feature-finder`(기능명·키워드 코드 위치 탐색) + 트리거 스킬 2종(`trace-logic`, `find-feature`) | agents / skills / CLAUDE.md | 특정 로직·기능 위치 탐색 요구 대응 |
 | 2026-06-03 | 에이전트 모델 최적화 — opus→sonnet 8종(change-safety, pattern-extractor, validator, qa, test-generator, sql-reviewer, doc-syncer, logic-tracer). opus 유지 5종(analyzer, writer, legacy-decoder, impact-analyzer, migration-planner) | agents/ | 패턴 기반 처리 작업에 opus 불필요, 비용 절감 |
 | 2026-06-03 | harness-init 3-Tier 적응 실행 — 복잡도 점수(파일수+DB/ORM+레거시+멀티모듈+외부시스템) 기반 Lite/Standard/Full 자동 분기. Lite: analyzer lite(sonnet)+writer(sonnet)+validator, QA·pattern 스킵. Standard: analyzer init(sonnet)+선택적 Phase B+writer(sonnet)+pattern+validator, QA 스킵. Full: 기존 파이프라인. 사용자 override 키워드 지원. | skills/harness-init / agents/analyzer | 프로젝트 규모 무관 전체 파이프라인 실행으로 인한 토큰·시간 낭비 해소 |
+| 2026-06-04 | Ouroboros 명세 게이트 + Karpathy eval 루프 접목 — spec-clarifier(sonnet, Phase -1: 소크라테스 인터뷰·모호성점수·GO신호) + harness-evaluator(sonnet, Phase 4: 4차원 품질평가·PASS/PARTIAL/RETRY·fix_targets 기반 타겟 재생성·1회 루프) + spec-gate 스킬 + harness-init Phase -1/-4 추가 + analyzer에 spec_context 전달 | agents/spec-clarifier, agents/harness-evaluator, skills/spec-gate, skills/harness-init, CLAUDE.md | 명세 모호성 제거(Ouroboros)·자기 개선 루프(Karpathy)로 harness 생성 품질 향상 |
