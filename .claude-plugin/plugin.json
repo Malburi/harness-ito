@@ -1,7 +1,7 @@
 {
   "name": "harness-ito",
-  "version": "0.1.0",
-  "description": "ITO/SI 조직을 위한 확장 메타 하네스 — 12 agents + 6 workflow skills",
+  "version": "0.2.0",
+  "description": "ITO/SI 조직을 위한 확장 메타 하네스 — 16 agents + 9 workflow skills (Spec Gate + Eval Loop)",
   "author": {
     "name": "Malburi",
     "url": "https://github.com/Malburi"
