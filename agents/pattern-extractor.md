@@ -66,6 +66,30 @@ writer가 생성한 패턴 스켈레톤을 받아, 실제 코드 샘플로부터
 | 생성자/빌더 | Lombok `@Builder`, dataclass, factory method |
 | 변환 메서드 | toEntity/toDto, mapper 라이브러리 사용 |
 
+### Client JS 레이어 (Legacy Static JS 환경)
+
+analyzer 리포트에 "LegacyStaticJS" 분류가 있는 경우만 실행. Modern SPA(package.json + 번들러) 환경에서는 스킵.
+
+| 추출 항목 | 방법 |
+|---------|------|
+| JS↔JSP 매핑 | JSP에서 `<script src=...{feature}.js>` grep → JS 파일명 확인. N:1 관계(여러 JSP → 1 JS) 여부 |
+| onInit 패턴 | `function onInit()` 본문 샘플링 — `new Forms(document.forms[0])`, 초기 AJAX 호출 패턴 |
+| onSaveData 패턴 | `function onSaveData()` 본문 — 검증(`setExRule`/`check`), 확인 다이얼로그, `frm.action`/`frm.submit()` 순서 |
+| AJAX 계약 | `transData(worker, action, param)` 또는 `$.ajax` 호출 → 응답 처리(`eval`, `JSON.parse`, `dataSet.rtXxx` 배열 접근) |
+| 파일 명명 규약 | `_gate`(메인), `_ajax`(AJAX 전용), `_popup`(팝업) 접미사 비율 측정 |
+| jQuery 버전 환경 | `$`/`jQuery` 버전 공존 여부, 버전별 사용 파일 분포 |
+| 안티패턴 | `eval(response)` 직접 사용(보안), `$.ajax` success 콜백에서 DOM 직접 조작(유지보수) |
+
+샘플링 방법: `client_index.json`의 `sample_mappings` 에서 출발 → 각 JS 파일 Read → 함수 구조 파악.
+
+추출 후 `client_pattern.md` 에 다음 섹션 추가:
+- **JS↔JSP 매핑 규칙** (도메인별 예시 2~3개)
+- **onInit / onSaveData 표준 골격** (실제 코드 인용)
+- **AJAX 호출 계약** (transData 시그니처 + 응답 형식)
+- **파일 명명 규약** (_gate/_ajax/_popup + 도메인별 경로)
+- **안티패턴** (eval 사용, jQuery 버전 혼재 등 — 발견 파일·라인 명시)
+- **신규 JS 작성 가이드** (단계별)
+
 ### Test 레이어
 
 | 추출 항목 | 방법 |

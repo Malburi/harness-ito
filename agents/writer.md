@@ -272,8 +272,17 @@ patterns/
 ├── error_handling_pattern.md
 ├── validation_pattern.md
 ├── test_pattern.md
-└── client_side_pattern.md   (클라이언트 자원 탐지 시)
+└── client_pattern.md        (Legacy Static JS 탐지 시 — 아래 조건 참조)
 ```
+
+`client_pattern.md` 생성 조건: analyzer 리포트의 "A. 클라이언트 자원"에 **"LegacyStaticJS"** 분류가 명시된 경우만 생성. Modern SPA(package.json + 번들러)에서는 생성하지 않는다. Legacy Static JS 환경에서 생략 시 pattern-extractor가 JS↔JSP 매핑·함수 규약·AJAX 계약을 채울 대상이 없어 client_index.json이 있어도 활용 불가. **탐지 즉시 필수 생성.**
+
+스켈레톤이 포함해야 할 추출 대상 (pattern-extractor가 채울 항목):
+- JS↔JSP 매핑 (다대일 관계)
+- onInit/onSaveData 함수 규약
+- transData()/eval AJAX 계약 + 응답 형식
+- _gate/_ajax/_popup 파일 명명 규약
+- jQuery 버전 환경 및 $() 혼재 안티패턴
 
 각 스켈레톤 파일은 다음 헤더만 포함:
 ```markdown
@@ -288,6 +297,23 @@ patterns/
 ```
 
 이렇게 분리하는 이유: writer 1회 실행 시간 단축, pattern-extractor의 deep 분석 결과를 별도로 관리하기 위함.
+
+---
+
+## ⚠️ 금지: 의미 없는 hooks 생성
+
+`settings.json`에 PreToolUse/PostToolUse hooks를 생성하면 **절대 안 되는** 경우:
+
+- `echo "[알림] ..."` — 터미널 출력만 하는 hooks. Claude가 읽지 않으므로 아무 효과 없음.
+- "스킬 자동 트리거를 위해" hooks를 등록하는 것 — **hooks는 Claude가 특정 스킬을 호출하도록 강제할 수 없다.** CLAUDE.md의 "자동 워크플로우" 테이블이 Claude의 판단 근거이며, hooks는 그 판단에 영향을 줄 수 없다.
+- 실행 결과를 Claude가 읽을 수 없는 위치에 기록하는 hooks.
+
+올바른 hooks 사용 사례 (생성 가능):
+- 실제 검증/빌드를 수행하고 결과를 파일로 저장하는 hooks (`ant compile` → `_workspace/compile_result.txt`)
+- 위험 파일(운영 DB 접속 정보 등)을 수정하려는 시도를 **차단**하는 hooks (`exit 1` 반환)
+- Claude가 도구 결과로 읽을 수 있는 정보를 생성하는 hooks
+
+hooks를 생성할 이유가 명확하지 않으면 **생성하지 않는다.** `settings.json`은 `{"enabledPlugins": {}}` 또는 기존 설정 유지.
 
 ---
 

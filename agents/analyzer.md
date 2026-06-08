@@ -111,7 +111,46 @@ model: opus
 - `EntityFramework*` → EF / EF Core
 
 ### Step 3~7
-기존 harness-new analyzer Step 3~7과 동일 (디렉토리 구조 분석, 소스 샘플링, 요청 흐름 재구성, 클라이언트 자원 탐지, 빌드 명령 파악).
+기존 harness-new analyzer Step 3~7과 동일. 이 중 **Step 5: 클라이언트 자원 탐지**는 아래와 같이 강화한다.
+
+#### Step 5: 클라이언트 자원 탐지 (강화)
+
+**Modern SPA/SSR 경로 (기존):**
+- `package.json` 존재 + `vue`/`react`/`next`/`nuxt` 등 → SPA/SSR 프런트엔드로 분류.
+
+**Legacy Static JS 탐지 (신규):**
+
+다음 조건이 모두 해당되면 **"Legacy Static JS (빌드 도구 없음)"** 으로 분류:
+1. 루트 또는 클라이언트 서브 디렉토리에 `package.json` 없음 (또는 있어도 `build`/`dev` 스크립트·번들러 항목 없음)
+2. JS 파일 100개 이상이 특정 하위 경로에 집중 (예: `/html/script/js/`, `/static/js/`, `/resources/js/`)
+
+탐지 후 수행:
+1. **도메인 폴더 구조 파악**: `back/{domain}/`, `front/{domain}/` 등 역할별 디렉토리 트리 요약.
+2. **JS↔템플릿 매핑 샘플**: JS 파일명 ↔ 로드하는 JSP/HTML 파일 6~10쌍 샘플링.
+   - JSP에서 `<script src=...{feature}.js>` 패턴 grep → JS 파일명 확인.
+   - 다대일 관계 주의: 여러 JSP가 같은 JS를 로드하거나, 하나의 JS가 여러 JSP에 걸쳐 사용될 수 있음.
+3. **JS 함수 규약 샘플**: `onInit`, `onSaveData`, `transData` 등 공통 진입점 함수 grep으로 패턴 확인.
+4. **라이브러리 버전 스캔**: jQuery, Bootstrap 등 인라인 CDN/`<script>` 태그에서 버전 수집.
+5. **AJAX 규약 탐지**: `$.ajax`, `fetch`, `XMLHttpRequest` 중 주 방식 + 응답 처리 패턴(`eval()`, `JSON.parse`, `dataSet.rtXxx` 등).
+
+산출물:
+- 분석 리포트의 "A. 클라이언트 자원" 섹션에 Legacy Static JS 상세 포함.
+- `_workspace/index/client_index.json` (Standard/Full 모드에서만):
+  ```json
+  {
+    "type": "LegacyStaticJS",
+    "build_tool": null,
+    "js_count": 0,
+    "domain_structure": { "back": ["education/course", "education/session"], "front": ["course", "mypage"] },
+    "sample_mappings": [
+      { "js": "back/education/course/course_info.js", "jsps": ["crsInfoHandle.jsp"], "functions": ["onInit","onSaveData"] }
+    ],
+    "ajax_contract": "transData(worker, action, param) → eval(response) → dataSet.rtXxx 2D array",
+    "jquery_versions": [],
+    "naming_convention": { "gate": "*_gate.js (메인)", "ajax": "*_ajax.js (AJAX 전용)", "popup": "*_popup.js (팝업)" },
+    "anti_patterns": ["eval(response) 보안 위험", "다중 jQuery 버전 공존"]
+  }
+  ```
 
 ---
 

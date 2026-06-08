@@ -255,6 +255,57 @@ Agent(
 )
 ```
 
+### 2-2.5. ito-guide.md 생성 (writer 완료 직후, 모든 Tier)
+
+writer 실행 직후, `.claude/ito-guide.md` 사용 가이드를 생성한다.
+
+```
+Agent(
+  subagent_type="general-purpose",
+  description="ito-guide.md 사용 설명서 생성",
+  prompt="프로젝트 루트 [절대경로]의 .claude/ito-guide.md 를 생성하라.
+
+  다음 정보를 Read 도구로 수집 후 작성:
+  - _workspace/01_analyzer_report.md (스택·파일 위치 파악)
+  - _workspace/02_writer_files.md (생성된 스킬/에이전트 목록)
+  - .claude/skills/*.md (각 스킬 트리거 조건)
+
+  파일 구조:
+  # ito-guide — [프로젝트명] 하네스 사용 설명서
+
+  ## 1. 스킬 사용법
+  생성된 각 스킬에 대해: 트리거 예시 문장 2~3개 + 어떤 상황에 쓰는지 한 줄 설명
+
+  ## 2. 에이전트 직접 호출
+  domain-expert / legacy-decoder / doc-syncer 사용 방법
+
+  ## 3. 패턴 파일 참조
+  .claude/patterns/*.md 각 파일의 용도 및 scaffold-feature와의 연계
+
+  ## 4. 인덱스 파일 설명
+  _workspace/index/*.json 각 파일 용도 (코드 수정 전 영향 확인 방법)
+
+  ## 5. 실전 시나리오
+  (분석 리포트에서 파악한 스택 기반으로) 가장 자주 쓰일 법한 시나리오 3~4개:
+  예: '신규 기능 추가', 'SQL 수정', '기존 코드 수정 전 영향 확인', '화면 오류 추적'
+  각 시나리오: 상황 설명 + 사용할 스킬/에이전트 + 예시 트리거 문장
+
+  ## 6. 주의사항
+  CLAUDE.md 의 '작업 시 주의사항' 핵심 항목 요약 (3~5개)
+
+  ## 7. 하네스 갱신
+  코드 변경 후 인덱스·패턴 갱신 방법 한 줄 안내
+
+  작성 원칙:
+  - 마크다운 서술형. 도표·코드블록 적극 활용.
+  - 실제 생성된 스킬/파일명만 참조 (없는 스킬 언급 금지).
+  - 한국어로 작성.",
+  model="sonnet"
+)
+```
+
+완료 후 `.claude/ito-guide.md` 존재 확인. 실패해도 파이프라인 계속 진행 ("ito-guide 미생성" WARN으로 처리).
+
 ### 2-3. pattern-extractor 호출 (Standard/Full만, 병렬 가능)
 
 **Lite면 스킵.**
@@ -329,6 +380,7 @@ Agent(
 
 [Core]
 - CLAUDE.md
+- .claude/ito-guide.md               (사용 설명서)
 - .claude/skills/trace.md, scaffolder.md, find-logic.md
 - .claude/agents/domain-expert.md
 - .claude/patterns/[목록]
